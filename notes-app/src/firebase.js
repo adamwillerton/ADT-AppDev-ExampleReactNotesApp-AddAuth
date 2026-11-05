@@ -3,12 +3,12 @@ import { getFirestore } from 'firebase/firestore';
  
 // Paste the values Firebase gave you in Step 2
 const firebaseConfig = {
-  apiKey: 'YOUR_API_KEY',
-  authDomain: 'YOUR_PROJECT.firebaseapp.com',
-  projectId: 'YOUR_PROJECT_ID',
-  storageBucket: 'YOUR_PROJECT.appspot.com',
-  messagingSenderId: 'YOUR_SENDER_ID',
-  appId: 'YOUR_APP_ID'
+  apiKey: 'AIzaSyALcLzol5bYlCufBRcnfXiUCw1zyH2PZNc',
+  authDomain: 'notesapp-25322.firebaseapp.com',
+  projectId: 'notesapp-25322',
+  storageBucket: 'notesapp-25322.firebasestorage.app',
+  messagingSenderId: '656517944838',
+  appId: '1:656517944838:web:faf5e986b05ed187ebd587'
 };
  
 const app = initializeApp(firebaseConfig);
