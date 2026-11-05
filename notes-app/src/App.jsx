@@ -1,34 +1,42 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
-// Simple localStorage-backed repository
-const KEY = 'notes.v1';
-
-function loadNotes() {
-  try { return JSON.parse(localStorage.getItem(KEY)) ?? []; } catch { return []; }
-}
-function saveNotes(notes) { localStorage.setItem(KEY, JSON.stringify(notes)); }
-
+import {
+  collection, addDoc, updateDoc, deleteDoc,
+  doc, onSnapshot, query, orderBy
+} from 'firebase/firestore';
+import { db } from './firebase.js';
+ 
 export default function App() {
-  const [notes, setNotes] = useState(loadNotes());
+  const [notes, setNotes] = useState([]);
   const [text, setText] = useState('');
   const [filter, setFilter] = useState('all'); // 'all' | 'open' | 'done'
-
-  useEffect(() => { saveNotes(notes); }, [notes]);
-
-  function add() {
+ 
+  // Load notes from Firestore and keep them up to date
+  useEffect(() => {
+    const q = query(collection(db, 'notes'), orderBy('createdAt', 'desc'));
+    return onSnapshot(q, (snapshot) => {
+      setNotes(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+  }, []);
+ 
+  async function add() {
     const val = text.trim();
     if (!val) return;
-    setNotes([{ id: crypto.randomUUID(), text: val, done: false, createdAt: new Date().toISOString() }, ...notes]);
     setText('');
+    await addDoc(collection(db, 'notes'), {
+      text: val, done: false, createdAt: new Date().toISOString()
+    });
+  }
+ 
+  async function toggle(id) {
+    const note = notes.find(n => n.id === id);
+    await updateDoc(doc(db, 'notes', id), { done: !note.done });
+  }
+ 
+  async function remove(id) {
+    await deleteDoc(doc(db, 'notes', id));
   }
 
-  function toggle(id) {
-    setNotes(notes.map(n => n.id === id ? { ...n, done: !n.done } : n));
-  }
-
-  function remove(id) {
-    setNotes(notes.filter(n => n.id !== id));
-  }
 
   const filtered = useMemo(() => {
     if (filter === 'open') return notes.filter(n => !n.done);
